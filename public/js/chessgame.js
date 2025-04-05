@@ -23,7 +23,7 @@ const renderBoard = () => {
                 const pieceElement  = document.createElement('div');
                 pieceElement.classList.add('piece', 
                     square.color === 'w' ? 'white' : 'black');
-                pieceElement.innerHTML=""
+                pieceElement.innerHTML=getPieceUnicode(square);
                 pieceElement.draggable=playerRole === square.color;
                 pieceElement.addEventListener("dragstart", (e)=>{
                     if(pieceElement.draggable){
@@ -56,13 +56,21 @@ const renderBoard = () => {
         
     });
 };
-const handleMove = () => {}
-
-const getPieceUnicode=(piece)=>{
-    const unicodePieces = {
-        'wP': '&#9817;', 'wR': '&#9814;', 'wN': '&#9816;', 'wB': '&#9815;', 'wQ': '&#9813;', 'wK': '&#9812;',
-        'bP': '&#9823;', 'bR': '&#9820;', 'bN': '&#9822;', 'bB': '&#9821;', 'bQ': '&#9819;', 'bK': '&#9818;'
+const handleMove = () => {
+    const move = {
+        from: `${sourceSquare.col}${sourceSquare.row}`,
+        to: `${targetSquare.col}${targetSquare.row}`,
+        promotion: 'q',
     };
-    return unicodePieces[piece.type] || "";
+    const moveResult = chess.move(move);
 }
+
+const getPieceUnicode = (piece) => {
+    const unicodePieces = {
+        'wP': '♙', 'wR': '♖', 'wN': '♘', 'wB': '♗', 'wQ': '♕', 'wK': '♔',
+        'bP': '♟', 'bR': '♜', 'bN': '♞', 'bB': '♝', 'bQ': '♛', 'bK': '♚'
+    };
+    const key = piece.color + piece.type.toUpperCase(); // e.g., 'wP'
+    return unicodePieces[key] || '';
+};
 renderBoard();
