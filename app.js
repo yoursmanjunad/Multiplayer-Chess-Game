@@ -7,6 +7,7 @@ const path = require('path');
 const { title } = require('process');
 const server = http.createServer(app);
 const io = socket(server);
+const ejs = require('ejs');
 
 const chess = new Chess();
 let players = {};
@@ -29,7 +30,33 @@ io.on('connection', function(uniqueSocket) {
     } else {
         uniqueSocket.emit('spectatorRole');
     }
-     
+    uniqueSocket.on('disconnect', function() {
+        console.log("Disconnected from server");
+        if(uniqueSocket.id == players.white) {
+            delete players.white;
+        } else if(uniqueSocket.id == players.black) {
+            delete players.black;
+        }
+    })
+    uniqueSocket.on('move', function(move) {
+        try {
+            if(chess.turn()==='w'&& uniqueSocket.id !== players.white)return;
+            if(chess.turn()==='b'&& uniqueSocket.id !== players.black)return;
+            const result = chess.move(move);
+            if(result) {
+                console.log(move);
+                currentPlayers = chess.turn();
+                io.emit('move', move);
+                io.emit('board', chess.fen());
+            } else {
+                uniqueSocket.emit('invalidMove', move);
+            }
+        }
+        catch(err) {
+            console.log(err);
+        }
+    });
+
 });
 server.listen(3000, () => {
     console.log("Server is running on port 3000");
